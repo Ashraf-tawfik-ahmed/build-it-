@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fill in the Blanks Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8fc;--card:#fff;--ink:#1b1b3a;--mute:#5b5f7a;--line:#d9deea;--ok:#0f8a6d;--okbg:#dff5ee;--bad:#c62f55;--badbg:#fde3ea;--accent:#2f7bf5;--chip:#fbbf24;--chipink:#1b1b3a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12132a;--card:#1c1e3d;--ink:#eef0ff;--mute:#a4a8c8;--line:#34376a;--ok:#4fd1ac;--okbg:#12382f;--bad:#ff7d9d;--badbg:#42182a;--accent:#7aa8ff;--chip:#fbbf24;--chipink:#1b1b3a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12132a;--card:#1c1e3d;--ink:#eef0ff;--mute:#a4a8c8;--line:#34376a;--ok:#4fd1ac;--okbg:#12382f;--bad:#ff7d9d;--badbg:#42182a;--accent:#7aa8ff;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Nunito,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:2.1rem;line-height:1.15;margin:0 0 6px;font-weight:800}
+.sub{color:var(--mute);margin:0 0 26px}
+h2{font-size:1.3rem;margin:34px 0 6px;font-weight:800}
+.mission{color:var(--mute);margin:0 0 14px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px 18px;margin:12px 0}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.chip{font:inherit;font-weight:800;background:var(--chip);color:var(--chipink);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip.sel{outline:3px solid var(--accent);outline-offset:2px}
+.chip.used{opacity:.35}
+.blank{font:inherit;font-weight:800;min-width:9.5em;display:inline-block;padding:0 10px;margin:0 2px;border:0;border-bottom:3px dashed var(--accent);background:transparent;color:var(--ink);cursor:pointer;text-align:center}
+.blank.filled{border-bottom-style:solid}
+.blank.ok,.card.ok{background:var(--okbg);border-bottom-color:var(--ok)}
+.blank.bad,.card.bad{background:var(--badbg);border-bottom-color:var(--bad)}
+select{font:inherit;padding:6px 8px;border:2px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink);margin-top:8px;max-width:100%}
+button.act{font:inherit;font-weight:800;background:var(--accent);color:#fff;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;margin:6px 8px 0 0}
+button.act.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.score{font-weight:800;margin-top:10px}
+.fb{color:var(--mute);font-size:.95rem;margin:6px 0 0}
+textarea{width:100%;min-height:110px;font:inherit;padding:10px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink)}
+ul.ck{list-style:none;padding:0;margin:10px 0}
+ul.ck li{padding:3px 0;color:var(--mute)}
+ul.ck li.on{color:var(--ok);font-weight:800}
+ul.ck li::before{content:"○ "}
+ul.ck li.on::before{content:"✔ "}
+.foot{color:var(--mute);font-size:.9rem;margin-top:34px}
+</style>
+</head>
+<body>
+<main>
+<h1>Fill in the Blanks Lab</h1>
+<p class="sub">Grade 10 AI · Week 11 · Build, test, trace, lock and defend words</p>
+
+<h2>F1 · Fill the blanks</h2>
+<p class="mission">Mission: finish each sentence with the right word. Tap a word, then tap a blank. Tap a filled blank to take the word out.</p>
+<div class="bank" id="bank"></div>
+<div id="sents"></div>
+<button class="act" id="chk1">Check my blanks</button><button class="act alt" id="rst1">Start again</button>
+<div class="score" id="sc1" aria-live="polite"></div>
+
+<h2>F2 · Use the word</h2>
+<p class="mission">Mission: read each situation and choose the word that fits it.</p>
+<div id="scen"></div>
+<button class="act" id="chk2">Check my choices</button>
+<div class="score" id="sc2" aria-live="polite"></div>
+
+<h2>F3 · Your own sentence</h2>
+<p class="mission">Write one sentence in your own words about a school AI tool. Aim to tick all three boxes.</p>
+<textarea id="own" placeholder="Type your sentence here" aria-label="Your own sentence"></textarea>
+<ul class="ck" id="ck">
+<li data-k="term">Uses one of the eight words</li>
+<li data-k="num">Includes a number (for example 70 or 9 of 10)</li>
+<li data-k="len">Is a real sentence (15 words or more)</li>
+</ul>
+
+<button class="act" id="copy">Copy my answers</button><span id="cmsg" aria-live="polite"></span>
+<p class="foot">Made-up examples only. No names, faces or personal details. Nothing you type here is saved or sent anywhere. Use “Copy my answers” and paste into your worksheet.</p>
+</main>
+<script>
+var TERMS=["assemble","hand-off","held-out test set","edge case","evaluation log","propagate","version-lock","defend"];
+var S=[
+["To","assemble","a chain is to connect your components so each one’s output feeds the next."],
+["The point where one step’s output becomes the next step’s input is called a","hand-off","."],
+["Inputs you set aside and never tune on, used for a fair final test, make up the","held-out test set","."],
+["A blank, wrong or extreme input that can break a component is an","edge case","."],
+["A record of every test, with the input, output, criteria met and component changed, is the","evaluation log","."],
+["When a change in one component travels through the hand-offs to the others, it is said to","propagate","."],
+["To","version-lock","means to choose the tested version you will show, then stop changing it."],
+["To","defend","a version is to answer a hard question by pointing to a named check you ran."]];
+var C=[
+["Step 1 prints a long paragraph, but Step 2 expects one line per item. Which word names the place where this breaks?","hand-off","The output of one step must fit the input of the next."],
+["You test your tool on 10 lists you never used while improving it. What is that group of lists called?","held-out test set","Inputs set aside and never tuned on give a fair final test."],
+["You change the sort prompt and the note tool’s output changes too. Which word describes how the change reached it?","propagate","A change travels through the hand-offs to other components."]];
+var sel=null,fill=[],chips=[];
+var order=[5,2,7,0,3,6,1,4];
+function bank(){var b=document.getElementById("bank");b.innerHTML="";chips=[];
+order.forEach(function(i){var c=document.createElement("button");c.className="chip";c.textContent=TERMS[i];c.onclick=function(){sel=(sel===TERMS[i])?null:TERMS[i];draw()};b.appendChild(c);chips.push(c)})}
+function sents(){var w=document.getElementById("sents");w.innerHTML="";
+S.forEach(function(s,i){var d=document.createElement("div");d.className="card";d.id="s"+i;
+d.appendChild(document.createTextNode(s[0]+" "));var b=document.createElement("button");b.className="blank";b.id="b"+i;b.setAttribute("aria-label","Blank "+(i+1));
+b.onclick=function(){if(fill[i]){fill[i]=null}else if(sel&&fill.indexOf(sel)<0){fill[i]=sel;sel=null}draw()};
+d.appendChild(b);d.appendChild(document.createTextNode(" "+s[2]));
+var f=document.createElement("p");f.className="fb";f.id="f"+i;d.appendChild(f);w.appendChild(d)})}
+function draw(){S.forEach(function(s,i){var b=document.getElementById("b"+i);b.textContent=fill[i]||"tap to fill";b.className="blank"+(fill[i]?" filled":"")});
+chips.forEach(function(c){var t=c.textContent;c.className="chip"+(sel===t?" sel":"")+(fill.indexOf(t)>=0?" used":"")})}
+var s1="";
+document.getElementById("chk1").onclick=function(){var n=0,done=0;
+S.forEach(function(s,i){var d=document.getElementById("s"+i),b=document.getElementById("b"+i),f=document.getElementById("f"+i);
+if(!fill[i]){d.className="card";f.textContent="Not filled yet.";return}done++;
+if(fill[i]===s[1]){n++;d.className="card ok";f.textContent="Correct."}else{d.className="card bad";f.textContent="Not quite. Try another word."}});
+s1=n+" of "+S.length;document.getElementById("sc1").textContent=done<S.length?"Score "+n+" of "+S.length+" · "+(S.length-done)+" blank(s) still empty":"Score "+n+" of "+S.length+(n===S.length?" · All eight correct.":"")};
+document.getElementById("rst1").onclick=function(){fill=[];sel=null;s1="";sents();draw();document.getElementById("sc1").textContent=""};
+function scen(){var w=document.getElementById("scen");C.forEach(function(c,i){var d=document.createElement("div");d.className="card";d.id="c"+i;
+var p=document.createElement("div");p.textContent=c[0];d.appendChild(p);
+var s=document.createElement("select");s.id="q"+i;s.setAttribute("aria-label","Answer for situation "+(i+1));
+var o=document.createElement("option");o.value="";o.textContent="Choose…";s.appendChild(o);
+TERMS.forEach(function(t){var x=document.createElement("option");x.value=t;x.textContent=t;s.appendChild(x)});d.appendChild(s);
+var f=document.createElement("p");f.className="fb";f.id="cf"+i;d.appendChild(f);w.appendChild(d)})}
+var s2="";
+document.getElementById("chk2").onclick=function(){var n=0;
+C.forEach(function(c,i){var v=document.getElementById("q"+i).value,d=document.getElementById("c"+i),f=document.getElementById("cf"+i);
+if(!v){d.className="card";f.textContent="Choose a word first.";return}
+if(v===c[1]){n++;d.className="card ok";f.textContent="Correct. "+c[2]}else{d.className="card bad";f.textContent="Not quite. Re-read the situation and try again."}});
+s2=n+" of "+C.length;document.getElementById("sc2").textContent="Score "+n+" of "+C.length};
+function ck(){var t=document.getElementById("own").value,l=t.toLowerCase();
+var r={term:TERMS.some(function(x){return l.indexOf(x)>=0})||l.indexOf("anonymis")>=0&&false,num:/\d/.test(t),len:t.trim().split(/\s+/).filter(Boolean).length>=15};
+document.querySelectorAll("#ck li").forEach(function(li){li.className=r[li.dataset.k]?"on":""});return r}
+document.getElementById("own").oninput=ck;
+document.getElementById("copy").onclick=function(){
+var o="Fill in the Blanks Lab · Week 11\nF1: "+(s1||"not checked")+"\n";
+S.forEach(function(s,i){o+="  "+(i+1)+". "+(fill[i]||"(blank)")+"\n"});
+o+="F2: "+(s2||"not checked")+"\n";
+C.forEach(function(c,i){o+="  "+(i+1)+". "+(document.getElementById("q"+i).value||"(none)")+"\n"});
+o+="F3: "+document.getElementById("own").value+"\n";
+var m=document.getElementById("cmsg");
+function ok(){m.textContent=" Copied. Paste it into your worksheet."}
+function no(){m.textContent=" Copy blocked. Select the text on the page and copy it yourself."}
+try{navigator.clipboard.writeText(o).then(ok,no)}catch(e){no()}};
+bank();sents();draw();scen();
+</script>
+</body>
+</html>
